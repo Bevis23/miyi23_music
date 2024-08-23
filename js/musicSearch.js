@@ -30,20 +30,17 @@ function searchMusic() {
         return;
     }
     resultArea.innerHTML = "搜索中...";
-    const searchUrl = `http://lpz.chatc.vip/apiqq.php?msg=${encodeURIComponent(keyword)}`;
+    const searchUrl = `/.netlify/functions/proxy?keyword=${encodeURIComponent(keyword)}`;
 
     fetch(searchUrl)
-        .then(response => response.text())
-        .then(text => {
-            console.log('API响应:', text);
-            const songs = text.split('\n');
-            displaySearchResults(songs);
+        .then(response => response.json())
+        .then(data => {
+            // 处理返回的数据
         })
         .catch(error => {
-            console.error('搜索错误:', error);
-            resultArea.innerHTML = "发生错误：" + error.message;
+            console.error('发生错误:', error);
         });
-}
+
 
 function displaySearchResults(songs) {
     if (songs.length === 0 || (songs.length === 1 && songs[0].trim() === '')) {
