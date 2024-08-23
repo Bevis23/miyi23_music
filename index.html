@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>miyi_video</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/movie.css">
+    <link rel="stylesheet" href="css/music.css">
+    <link rel="stylesheet" href="css/dailyVideo.css">
+    <link rel="stylesheet" href="css/randomVideo.css">
+    <script src="js/main.js" type="module"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <ul>
+                
+                <li><button id="musicSearchBtn">音乐搜索听歌</button></li>
+            
+            </ul>
+        </div>
+        <div class="main-content">
+            <div id="movieSearchContent" class="content-section">
+                <!-- 影视搜索观看内容 -->
+            </div>
+        <div id="musicSearchContent" class="content-section">
+            <h2>音乐搜索</h2>
+            <div class="search-container">
+                <input type="text" id="musicSearchInput" placeholder="输入歌曲名或歌手">
+                <button id="searchMusicBtn">搜索</button>
+            </div>
+            <div id="musicResults" class="result-area"></div>
+            <div id="musicPlayer" class="audio-player" style="display:none;">
+                <audio id="audioPlayer" controls>
+                    您的浏览器不支持 audio 元素。
+                </audio>
+                <div id="songInfo"></div>
+            </div>
+        </div>
+
+            <div id="dailyVideoContent" class="content-section">
+                <!-- 全球热门视频内容 -->
+            </div>
+            <div id="randomVideoContent" class="content-section">
+                <!-- 随机短视频内容 -->
+            </div>
+            <div id="futureFeatureContent" class="content-section">
+                <!-- 待定功能内容 -->
+            </div>
+        </div>
+    </div>
+    <footer>
+        <!-- 页脚内容 -->
+    </footer>
+</body>
+</html>
