@@ -1,5 +1,4 @@
 // musicSearch.js
-
 let searchInput, searchButton, resultArea, audioPlayer, musicPlayer, songInfo;
 
 export function handleMusicSearch() {
@@ -31,16 +30,17 @@ function searchMusic() {
     }
     resultArea.innerHTML = "搜索中...";
     const searchUrl = `/.netlify/functions/proxy?keyword=${encodeURIComponent(keyword)}`;
-
     fetch(searchUrl)
         .then(response => response.json())
         .then(data => {
             // 处理返回的数据
+            displaySearchResults(data.songs || []); // 假设API返回的数据中有一个songs数组
         })
         .catch(error => {
             console.error('发生错误:', error);
+            resultArea.innerHTML = "搜索出错，请稍后再试。";
         });
-
+}
 
 function displaySearchResults(songs) {
     if (songs.length === 0 || (songs.length === 1 && songs[0].trim() === '')) {
@@ -50,7 +50,7 @@ function displaySearchResults(songs) {
     let html = '<ul>';
     songs.forEach((song, index) => {
         if (song.trim()) {
-            html += `<li><button onclick="getSong('${encodeURIComponent(song)}', ${index + 1})">${song}</button></li>`;
+            html += `<li><button onclick="window.getSong('${encodeURIComponent(song)}', ${index + 1})">${song}</button></li>`;
         }
     });
     html += '</ul>';
@@ -59,8 +59,7 @@ function displaySearchResults(songs) {
 
 function getSong(songName, n) {
     resultArea.innerHTML = "加载中...";
-    const url = `http://lpz.chatc.vip/apiqq.php?msg=${songName}&n=${n}&type=json`;
-
+    const url = `https://lpz.chatc.vip/apiqq.php?msg=${songName}&n=${n}&type=json`;
     fetch(url)
         .then(response => response.json())
         .then(data => {
@@ -83,14 +82,12 @@ function playSong(songData) {
         resultArea.innerHTML = "无法获取歌曲播放链接，请尝试其他歌曲。";
         return;
     }
-
     audioPlayer.src = songData.music_url;
     musicPlayer.style.display = 'block';
     audioPlayer.play().catch(e => {
         console.error('播放错误:', e);
         resultArea.innerHTML = "无法播放此歌曲，请尝试其他歌曲。";
     });
-
     updateSongInfo(songData);
 }
 
@@ -104,7 +101,6 @@ function updateSongInfo(songData) {
         infoHtml += `<img src="${songData.cover}" alt="专辑封面" style="max-width: 200px;">`;
     }
     songInfo.innerHTML = infoHtml;
-
     if (songData.lyric) {
         resultArea.innerHTML = `<pre>${songData.lyric}</pre>`;
     } else {
