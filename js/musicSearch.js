@@ -33,25 +33,27 @@ function searchMusic() {
     fetch(searchUrl)
         .then(response => response.json())
         .then(data => {
-            // 处理返回的数据
-            displaySearchResults(data.songs || []); // 假设API返回的数据中有一个songs数组
+            console.log('Received data:', data);
+            if (data.songs && Array.isArray(data.songs)) {
+                displaySearchResults(data.songs);
+            } else {
+                resultArea.innerHTML = "未找到相关歌曲";
+            }
         })
         .catch(error => {
-            console.error('发生错误:', error);
+            console.error('搜索错误:', error);
             resultArea.innerHTML = "搜索出错，请稍后再试。";
         });
 }
 
 function displaySearchResults(songs) {
-    if (songs.length === 0 || (songs.length === 1 && songs[0].trim() === '')) {
+    if (songs.length === 0) {
         resultArea.innerHTML = "未找到相关歌曲";
         return;
     }
     let html = '<ul>';
     songs.forEach((song, index) => {
-        if (song.trim()) {
-            html += `<li><button onclick="window.getSong('${encodeURIComponent(song)}', ${index + 1})">${song}</button></li>`;
-        }
+        html += `<li><button onclick="playSong('${encodeURIComponent(song)}', ${index + 1})">${song}</button></li>`;
     });
     html += '</ul>';
     resultArea.innerHTML = html;
