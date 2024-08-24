@@ -1,7 +1,8 @@
+[build]
+  functions = "netlify/functions"
+
 [functions]
   node_bundler = "esbuild"
-  external_node_modules = ["node-fetch"]
-  included_files = ["node_modules/node-fetch/**/*"]
 
 [build.environment]
-  NODE_TLS_REJECT_UNAUTHORIZED = "0"
+  NODE_VERSION = "14" # 或更高版本，但要确保与您本地开发环境兼容
