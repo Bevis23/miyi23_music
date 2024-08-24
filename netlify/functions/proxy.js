@@ -26,7 +26,7 @@ exports.handler = async function (event, context) {
         };
     }
 
-    const searchUrl = `https://lpz.chatc.vip/apiqq.php?msg=${encodeURIComponent(keyword)}`;
+    const searchUrl = `http://lpz.chatc.vip/apiqq.php?msg=${encodeURIComponent(keyword)}`;
 
     try {
         const response = await fetch(searchUrl, { timeout: 8000 });
