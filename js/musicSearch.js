@@ -59,7 +59,7 @@ function displaySearchResults(songs) {
 
 function getSong(songName, n) {
     resultArea.innerHTML = "加载中...";
-    const url = `https://lpz.chatc.vip/apiqq.php?msg=${songName}&n=${n}&type=json`;
+    const url = `http://lpz.chatc.vip/apiqq.php?msg=${songName}&n=${n}&type=json`;
     fetch(url)
         .then(response => response.json())
         .then(data => {
