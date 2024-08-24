@@ -1,39 +1,44 @@
 const fetch = require('node-fetch');
 
 exports.handler = async function (event, context) {
-    // 设置 CORS 头
+    console.log('Function invoked with query:', event.queryStringParameters);
+
     const headers = {
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Headers": "Content-Type",
         "Access-Control-Allow-Methods": "GET, POST, OPTIONS"
     };
 
-    // 处理 OPTIONS 请求
     if (event.httpMethod === 'OPTIONS') {
-        return {
-            statusCode: 200,
-            headers: headers,
-            body: ''
-        };
+        console.log('Handling OPTIONS request');
+        return { statusCode: 200, headers: headers, body: '' };
     }
 
     const keyword = event.queryStringParameters.keyword;
     if (!keyword) {
+        console.log('Missing keyword parameter');
         return {
             statusCode: 400,
             headers: headers,
-            body: JSON.stringify({ error: '缺少关键词参数' })
+            body: JSON.stringify({ error: 'Missing keyword parameter' })
         };
     }
 
     const searchUrl = `http://lpz.chatc.vip/apiqq.php?msg=${encodeURIComponent(keyword)}`;
+    console.log('Fetching from URL:', searchUrl);
 
     try {
-        const response = await fetch(searchUrl, { timeout: 8000 });
+        console.log('Initiating fetch request');
+        const response = await fetch(searchUrl, { timeout: 15000 });
+        console.log('Received response with status:', response.status);
+
         if (!response.ok) {
             throw new Error(`API responded with status: ${response.status}`);
         }
+
         const data = await response.json();
+        console.log('Successfully parsed JSON response');
+
         return {
             statusCode: 200,
             headers: headers,
@@ -44,7 +49,7 @@ exports.handler = async function (event, context) {
         return {
             statusCode: 502,
             headers: headers,
-            body: JSON.stringify({ error: '获取数据失败', details: error.message })
+            body: JSON.stringify({ error: 'Failed to fetch data', details: error.message })
         };
     }
 };
