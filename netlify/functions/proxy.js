@@ -16,6 +16,8 @@ exports.handler = async function (event, context) {
     }
 
     const keyword = event.queryStringParameters.keyword;
+    const n = event.queryStringParameters.n;
+
     if (!keyword) {
         console.log('Missing keyword parameter');
         return {
@@ -25,7 +27,14 @@ exports.handler = async function (event, context) {
         };
     }
 
-    const searchUrl = `http://lpz.chatc.vip/apiqq.php?msg=${encodeURIComponent(keyword)}`;
+    let searchUrl;
+    if (n) {
+        // 如果提供了 n 参数，则假设这是获取特定歌曲URL的请求
+        searchUrl = `http://lpz.chatc.vip/apiqq.php?msg=${encodeURIComponent(keyword)}&n=${n}&type=json`;
+    } else {
+        // 否则，这是一个普通的搜索请求
+        searchUrl = `http://lpz.chatc.vip/apiqq.php?msg=${encodeURIComponent(keyword)}`;
+    }
     console.log('Fetching from URL:', searchUrl);
 
     try {
@@ -38,18 +47,30 @@ exports.handler = async function (event, context) {
         }
 
         const buffer = await response.buffer();
-        const text = iconv.decode(buffer, 'utf-8');  // 假设编码是 UTF-8，如果是 GBK 则改为 'gbk'
+        const text = iconv.decode(buffer, 'utf-8');
         console.log('Decoded response:', text);
 
-        // 将文本响应转换为数组
-        const songs = text.split('\n')
-            .map(line => line.trim())
-            .filter(line => line && !line.startsWith('SyntaxError'));
+        let data;
+        if (n) {
+            // 如果是获取特定歌曲URL的请求，尝试解析JSON
+            try {
+                data = JSON.parse(text);
+            } catch (error) {
+                console.error('Failed to parse JSON:', error);
+                data = { error: 'Invalid JSON response' };
+            }
+        } else {
+            // 如果是搜索请求，将文本响应转换为数组
+            const songs = text.split('\n')
+                .map(line => line.trim())
+                .filter(line => line && !line.startsWith('SyntaxError'));
+            data = { songs: songs };
+        }
 
         return {
             statusCode: 200,
             headers: headers,
-            body: JSON.stringify({ songs: songs })
+            body: JSON.stringify(data)
         };
     } catch (error) {
         console.error('Proxy function error:', error);
