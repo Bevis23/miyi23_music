@@ -15,8 +15,7 @@ exports.handler = async function (event, context) {
         return { statusCode: 200, headers: headers, body: '' };
     }
 
-    const keyword = event.queryStringParameters.keyword;
-    const n = event.queryStringParameters.n;
+    const { keyword, n } = event.queryStringParameters;
 
     if (!keyword) {
         console.log('Missing keyword parameter');
@@ -27,14 +26,10 @@ exports.handler = async function (event, context) {
         };
     }
 
-    let searchUrl;
-    if (n) {
-        // 如果提供了 n 参数，则假设这是获取特定歌曲URL的请求
-        searchUrl = `http://lpz.chatc.vip/apiqq.php?msg=${encodeURIComponent(keyword)}&n=${n}&type=json`;
-    } else {
-        // 否则，这是一个普通的搜索请求
-        searchUrl = `http://lpz.chatc.vip/apiqq.php?msg=${encodeURIComponent(keyword)}`;
-    }
+    const searchUrl = n
+        ? `http://lpz.chatc.vip/apiqq.php?msg=${encodeURIComponent(keyword)}&n=${n}&type=json`
+        : `http://lpz.chatc.vip/apiqq.php?msg=${encodeURIComponent(keyword)}`;
+
     console.log('Fetching from URL:', searchUrl);
 
     try {
@@ -52,15 +47,13 @@ exports.handler = async function (event, context) {
 
         let data;
         if (n) {
-            // 如果是获取特定歌曲URL的请求，尝试解析JSON
             try {
                 data = JSON.parse(text);
             } catch (error) {
                 console.error('Failed to parse JSON:', error);
-                data = { error: 'Invalid JSON response' };
+                throw new Error('Invalid JSON response');
             }
         } else {
-            // 如果是搜索请求，将文本响应转换为数组
             const songs = text.split('\n')
                 .map(line => line.trim())
                 .filter(line => line && !line.startsWith('SyntaxError'));

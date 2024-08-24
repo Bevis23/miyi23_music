@@ -58,15 +58,23 @@ function displaySearchResults(songs) {
     html += '</ul>';
     resultArea.innerHTML = html;
 }
-function getSong(songName, n) {
+
+function playSong(songName, index) {
+    console.log(`Playing song: ${decodeURIComponent(songName)}, index: ${index}`);
     resultArea.innerHTML = "加载中...";
-    const url = `http://lpz.chatc.vip/apiqq.php?msg=${songName}&n=${n}&type=json`;
-    fetch(url)
+    fetch(`/.netlify/functions/proxy?keyword=${songName}&n=${index}`)
         .then(response => response.json())
         .then(data => {
             console.log('歌曲数据:', data);
-            if (data.code === 200 && data.data) {
-                playSong(data.data);
+            if (data.code === 200 && data.data && data.data.music_url) {
+                const songData = data.data;
+                audioPlayer.src = songData.music_url;
+                musicPlayer.style.display = 'block';
+                audioPlayer.play().catch(e => {
+                    console.error('播放错误:', e);
+                    resultArea.innerHTML = "无法播放此歌曲，请尝试其他歌曲。";
+                });
+                updateSongInfo(songData);
             } else {
                 throw new Error(data.msg || '获取歌曲信息失败');
             }
@@ -74,31 +82,6 @@ function getSong(songName, n) {
         .catch(error => {
             console.error('获取歌曲信息错误:', error);
             resultArea.innerHTML = "无法获取歌曲信息：" + error.message + "。请尝试其他歌曲。";
-        });
-}
-
-function playSong(songName, index) {
-    console.log(`Playing song: ${decodeURIComponent(songName)}, index: ${index}`);
-    // 这里添加播放歌曲的逻辑
-    // 例如，可以发送请求到另一个API来获取歌曲的URL
-    fetch(`/.netlify/functions/proxy?keyword=${songName}&n=${index}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.music_url) {
-                // 假设您的HTML中有一个audio元素
-                const audioPlayer = document.getElementById('audioPlayer');
-                audioPlayer.src = data.music_url;
-                audioPlayer.play();
-                // 更新UI以显示正在播放的歌曲信息
-                document.getElementById('nowPlaying').textContent = `正在播放: ${decodeURIComponent(songName)}`;
-            } else {
-                console.error('No music URL found in the response');
-                alert('无法播放该歌曲，请尝试其他歌曲。');
-            }
-        })
-        .catch(error => {
-            console.error('Error playing song:', error);
-            alert('播放出错，请稍后再试。');
         });
 }
 
@@ -123,6 +106,5 @@ function onPlaybackEnded() {
     resultArea.innerHTML = "播放结束，请选择新的歌曲。";
 }
 
-// 使 getSong 函数在全局范围内可用
-window.getSong = getSong;
+// 使 playSong 函数在全局范围内可用
 window.playSong = playSong;
